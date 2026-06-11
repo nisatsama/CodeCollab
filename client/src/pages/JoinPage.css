@@ -5,8 +5,6 @@
 }
 
 body {
-  background: #0f172a;
-  color: white;
   font-family: Arial, sans-serif;
 }
 
@@ -15,14 +13,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #0f172a;
 }
 
 .card {
-  background: #1e293b;
-  padding: 40px;
-  border-radius: 15px;
   width: 400px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
   text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .card h1 {
@@ -30,30 +30,35 @@ body {
 }
 
 .subtitle {
-  color: #94a3b8;
-  margin-bottom: 25px;
+  color: gray;
+  margin-bottom: 20px;
 }
 
 input {
   width: 100%;
   padding: 12px;
-  border-radius: 8px;
-  border: none;
   margin-bottom: 15px;
-  outline: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
 }
 
 button {
-  width: 100%;
+  flex: 1;
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background: #3b82f6;
-  color: white;
   cursor: pointer;
+  background: #2563eb;
+  color: white;
   font-size: 16px;
 }
 
 button:hover {
-  background: #2563eb;
+  opacity: 0.9;
 }
