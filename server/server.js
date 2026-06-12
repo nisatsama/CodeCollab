@@ -5,6 +5,8 @@ const cors = require("cors");
 
 const app = express();
 
+const rooms = {};
+
 app.use(cors());
 
 const server = http.createServer(app);
@@ -19,17 +21,60 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("User Connected:", socket.id);
 
-  socket.on("join_room", (roomId) => {
+  socket.on("join-room", ({ roomId, username }) => {
     socket.join(roomId);
-    console.log(`Joined Room ${roomId}`);
+
+    if (!rooms[roomId]) {
+      rooms[roomId] = [];
+    }
+
+    rooms[roomId].push({
+      socketId: socket.id,
+      username,
+    });
+
+    socket.to(roomId).emit("new-user-joined", {
+      socketId: socket.id,
+    });
+
+    io.to(roomId).emit(
+      "participants-update",
+      rooms[roomId].map((user) => user.username),
+    );
+
+    console.log(`${username} Joined Room ${roomId}`);
   });
 
-  socket.on("send_code", (data) => {
-    socket.to(data.room).emit("receive_code", data.code);
+  // ===== PHASE 3 =====
+  socket.on("code-change", ({ roomId, code }) => {
+    socket.to(roomId).emit("code-change", code);
+  });
+
+  // ===== PHASE 3.2 =====
+  socket.on("sync-code", ({ socketId, code }) => {
+    io.to(socketId).emit("code-change", code);
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    for (const roomId in rooms) {
+      rooms[roomId] = rooms[roomId].filter(
+        (user) => user.socketId !== socket.id,
+      );
+
+      io.to(roomId).emit(
+        "participants-update",
+        rooms[roomId].map((user) => user.username),
+      );
+
+      if (rooms[roomId].length === 0) {
+        delete rooms[roomId];
+      }
+    }
+
+    console.log("Current Rooms:");
+    console.log(rooms);
+
+    console.log("User disconnected", socket.id);
   });
 });
 
