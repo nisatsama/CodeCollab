@@ -9,6 +9,7 @@ function EditorPage() {
   const codeRef = useRef("");
   const editorRef = useRef(null);
   const languageRef = useRef("javascript");
+  const bottomRef = useRef(null);
 
   const { roomId } = useParams();
   const location = useLocation();
@@ -20,6 +21,64 @@ function EditorPage() {
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
 
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
+
+  // Load chat history
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const res = await axios.get(`/messages/${roomId}`);
+
+        // Normalize response: backend may return an array or an object { messages: [...] }
+        const data = res.data;
+        if (Array.isArray(data)) {
+          setMessages(data);
+        } else if (data && Array.isArray(data.messages)) {
+          setMessages(data.messages);
+        } else {
+          setMessages([]);
+        }
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+      }
+    };
+
+    fetchMessages();
+  }, [roomId]);
+
+  // Auto scroll chat
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages]);
+
+  // Listen for new messages
+  useEffect(() => {
+    const handleMessage = (message) => {
+      setMessages((prev) => [...prev, message]);
+    };
+
+    socket.on("receive-message", handleMessage);
+
+    return () => {
+      socket.off("receive-message", handleMessage);
+    };
+  }, []);
+
+  const sendMessage = () => {
+    if (!text.trim()) return;
+
+    socket.emit("send-message", {
+      roomId,
+      content: text,
+    });
+
+    setText("");
+  };
+
+  // Room + Collaboration logic
   useEffect(() => {
     socket.emit("join-room", {
       roomId,
@@ -96,13 +155,10 @@ function EditorPage() {
     try {
       setOutput("Running...");
 
-      const response = await axios.post(
-        "http://localhost:5000/run-code",
-        {
-          code,
-          language,
-        }
-      );
+      const response = await axios.post("http://localhost:5000/run-code", {
+        code,
+        language,
+      });
 
       setOutput(response.data.output);
     } catch (err) {
@@ -209,6 +265,93 @@ function EditorPage() {
           >
             {output}
           </pre>
+        </div>
+      </div>
+
+      {/* Chat Section */}
+      <div
+        style={{
+          width: "320px",
+          background: "#252526",
+          color: "white",
+          display: "flex",
+          flexDirection: "column",
+          borderLeft: "1px solid #333",
+        }}
+      >
+        <h3
+          style={{
+            padding: "12px",
+            margin: 0,
+            borderBottom: "1px solid #333",
+          }}
+        >
+          Chat
+        </h3>
+
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "10px",
+          }}
+        >
+          {messages.map((msg, index) => (
+            <div
+              key={msg._id || index}
+              style={{
+                marginBottom: "10px",
+                padding: "8px",
+                background: "#1e1e1e",
+                borderRadius: "6px",
+              }}
+            >
+              <strong>{msg.sender?.name || "Unknown"}</strong>
+
+              <p
+                style={{
+                  margin: "5px 0",
+                }}
+              >
+                {msg.content}
+              </p>
+
+              <small>
+                {msg.createdAt
+                  ? new Date(msg.createdAt).toLocaleTimeString()
+                  : ""}
+              </small>
+            </div>
+          ))}
+
+          <div ref={bottomRef}></div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "5px",
+            padding: "10px",
+            borderTop: "1px solid #333",
+          }}
+        >
+          <input
+            type="text"
+            value={text}
+            placeholder="Type a message..."
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                sendMessage();
+              }
+            }}
+            style={{
+              flex: 1,
+              padding: "8px",
+            }}
+          />
+
+          <button onClick={sendMessage}>Send</button>
         </div>
       </div>
     </div>

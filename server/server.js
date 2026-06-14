@@ -7,6 +7,7 @@ const axios = require("axios");
 const app = express();
 
 const rooms = {};
+const roomMessages = {};
 
 app.use(cors());
 app.use(express.json());
@@ -33,8 +34,14 @@ io.on("connection", (socket) => {
   socket.on("join-room", ({ roomId, username }) => {
     socket.join(roomId);
 
+    socket.username = username;
+
     if (!rooms[roomId]) {
       rooms[roomId] = [];
+    }
+
+    if (!roomMessages[roomId]) {
+      roomMessages[roomId] = [];
     }
 
     rooms[roomId].push({
@@ -54,17 +61,41 @@ io.on("connection", (socket) => {
     console.log(`${username} Joined Room ${roomId}`);
   });
 
+  // ===== CHAT SYSTEM =====
+
+  socket.on("send-message", ({ roomId, content }) => {
+    const message = {
+      _id: Date.now().toString(),
+      sender: {
+        name: socket.username || "Guest",
+      },
+      content,
+      createdAt: new Date(),
+    };
+
+    if (!roomMessages[roomId]) {
+      roomMessages[roomId] = [];
+    }
+
+    roomMessages[roomId].push(message);
+
+    io.to(roomId).emit("receive-message", message);
+  });
+
   // ===== PHASE 3 =====
+
   socket.on("code-change", ({ roomId, code }) => {
     socket.to(roomId).emit("code-change", code);
   });
 
   // ===== PHASE 3.2 =====
+
   socket.on("sync-code", ({ socketId, code }) => {
     io.to(socketId).emit("code-change", code);
   });
 
   // ===== PHASE 4 =====
+
   socket.on("language-change", ({ roomId, language }) => {
     socket.to(roomId).emit("language-change", language);
   });
@@ -86,6 +117,7 @@ io.on("connection", (socket) => {
 
       if (rooms[roomId].length === 0) {
         delete rooms[roomId];
+        delete roomMessages[roomId];
       }
     }
 
@@ -96,7 +128,16 @@ io.on("connection", (socket) => {
   });
 });
 
+// ===== CHAT HISTORY =====
+
+app.get("/api/messages/:roomId", (req, res) => {
+  const roomId = req.params.roomId;
+
+  res.json(roomMessages[roomId] || []);
+});
+
 // ===== PHASE 5 =====
+
 app.post("/run-code", async (req, res) => {
   const { code, language } = req.body;
 
