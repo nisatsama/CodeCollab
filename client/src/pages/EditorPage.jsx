@@ -5,6 +5,8 @@ import axios from "axios";
 
 import socket from "../socket";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 function EditorPage() {
   const codeRef = useRef("");
   const editorRef = useRef(null);
@@ -28,7 +30,7 @@ function EditorPage() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(`/messages/${roomId}`);
+        const res = await axios.get(`${API_BASE}/api/messages/${roomId}`);
 
         // Normalize response: backend may return an array or an object { messages: [...] }
         const data = res.data;
@@ -54,16 +56,24 @@ function EditorPage() {
     });
   }, [messages]);
 
-  // Listen for new messages
+  // Listen for new messages and chat history
   useEffect(() => {
     const handleMessage = (message) => {
       setMessages((prev) => [...prev, message]);
     };
 
+    const handleChatHistory = (history) => {
+      if (Array.isArray(history)) {
+        setMessages(history);
+      }
+    };
+
     socket.on("receive-message", handleMessage);
+    socket.on("chat-history", handleChatHistory);
 
     return () => {
       socket.off("receive-message", handleMessage);
+      socket.off("chat-history", handleChatHistory);
     };
   }, []);
 
@@ -80,11 +90,6 @@ function EditorPage() {
 
   // Room + Collaboration logic
   useEffect(() => {
-    socket.emit("join-room", {
-      roomId,
-      username,
-    });
-
     socket.on("user-joined", ({ username }) => {
       console.log(`${username} joined`);
     });
@@ -116,6 +121,11 @@ function EditorPage() {
         socketId,
         language: languageRef.current,
       });
+    });
+
+    socket.emit("join-room", {
+      roomId,
+      username,
     });
 
     return () => {
@@ -155,7 +165,7 @@ function EditorPage() {
     try {
       setOutput("Running...");
 
-      const response = await axios.post("http://localhost:5000/run-code", {
+      const response = await axios.post(`${API_BASE}/execute`, {
         code,
         language,
       });

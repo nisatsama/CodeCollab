@@ -8,9 +8,10 @@ const app = express();
 
 const rooms = {};
 const roomMessages = {};
-
+const executeRoute = require("./routes/execute");
 app.use(cors());
 app.use(express.json());
+app.use("/execute", executeRoute);
 
 const server = http.createServer(app);
 
@@ -48,6 +49,8 @@ io.on("connection", (socket) => {
       socketId: socket.id,
       username,
     });
+
+    socket.emit("chat-history", roomMessages[roomId]);
 
     socket.to(roomId).emit("new-user-joined", {
       socketId: socket.id,
@@ -117,7 +120,7 @@ io.on("connection", (socket) => {
 
       if (rooms[roomId].length === 0) {
         delete rooms[roomId];
-        delete roomMessages[roomId];
+        // Keep roomMessages so room chat history persists even after all users leave.
       }
     }
 
@@ -137,48 +140,6 @@ app.get("/api/messages/:roomId", (req, res) => {
 });
 
 // ===== PHASE 5 =====
-
-app.post("/run-code", async (req, res) => {
-  const { code, language } = req.body;
-
-  try {
-    const languageId = languageMap[language];
-
-    if (!languageId) {
-      return res.status(400).json({
-        error: "Unsupported language",
-      });
-    }
-
-    const submissionResponse = await axios.post(
-      "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true",
-      {
-        source_code: code,
-        language_id: languageId,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
-          "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-        },
-      },
-    );
-
-    const result = submissionResponse.data;
-
-    res.json({
-      output:
-        result.stdout || result.stderr || result.compile_output || "No Output",
-    });
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      error: "Code execution failed",
-    });
-  }
-});
 
 app.get("/", (req, res) => {
   res.send("Server is running");
