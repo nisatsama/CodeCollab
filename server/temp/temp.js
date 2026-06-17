@@ -1,1 +1,1 @@
-print(J)
+console.log("K");
