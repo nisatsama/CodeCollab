@@ -2,6 +2,7 @@ import { useParams, useLocation } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import "./EditorPage.css";
 
 import socket from "../socket";
 
@@ -26,14 +27,13 @@ function EditorPage() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
-  // Load chat history
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const res = await axios.get(`${API_BASE}/api/messages/${roomId}`);
 
-        // Normalize response: backend may return an array or an object { messages: [...] }
         const data = res.data;
+
         if (Array.isArray(data)) {
           setMessages(data);
         } else if (data && Array.isArray(data.messages)) {
@@ -49,14 +49,12 @@ function EditorPage() {
     fetchMessages();
   }, [roomId]);
 
-  // Auto scroll chat
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
     });
   }, [messages]);
 
-  // Listen for new messages and chat history
   useEffect(() => {
     const handleMessage = (message) => {
       setMessages((prev) => [...prev, message]);
@@ -88,7 +86,6 @@ function EditorPage() {
     setText("");
   };
 
-  // Room + Collaboration logic
   useEffect(() => {
     socket.on("user-joined", ({ username }) => {
       console.log(`${username} joined`);
@@ -182,151 +179,84 @@ function EditorPage() {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-      }}
-    >
+    <div className="editor-page">
       {/* Sidebar */}
-      <div
-        style={{
-          width: "250px",
-          background: "#1e1e1e",
-          color: "white",
-          padding: "20px",
-        }}
-      >
-        <h2>🚀 CodeCollab</h2>
+      <div className="sidebar">
+        <h2 className="logo">🚀 CodeCollab</h2>
 
-        <hr />
+        <div className="sidebar-card">
+          <div className="sidebar-label">User</div>
+          <div className="sidebar-value">{username}</div>
+        </div>
 
-        <p>
-          <strong>User:</strong> {username}
-        </p>
+        <div className="sidebar-card">
+          <div className="sidebar-label">Room ID</div>
+          <div className="sidebar-value">{roomId}</div>
+        </div>
 
-        <p>
-          <strong>Room:</strong> {roomId}
-        </p>
+        <h3 className="participants-title">Participants</h3>
 
-        <hr />
-
-        <h3>Participants</h3>
-
-        <ul>
+        <ul className="participant-list">
           {participants.map((user, index) => (
-            <li key={index}>{user}</li>
+            <li key={index} className="participant-item">
+              <span className="participant-avatar"></span>
+              {user}
+            </li>
           ))}
         </ul>
       </div>
 
       {/* Editor Section */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            padding: "10px",
-            background: "#252526",
-            display: "flex",
-            gap: "8px",
-            alignItems: "center",
-          }}
-        >
-          <button onClick={runCode}>Run Code</button>
+      <div className="editor-section">
+        <div className="toolbar">
+          <div className="toolbar-left">
+            <button className="run-btn" onClick={runCode}>
+              ▶ Run Code
+            </button>
 
-          <select value={language} onChange={handleLanguageChange}>
-            <option value="javascript">JavaScript</option>
-            <option value="java">Java</option>
-            <option value="python">Python</option>
-            <option value="cpp">C++</option>
-          </select>
+            <select
+              className="language-select"
+              value={language}
+              onChange={handleLanguageChange}
+            >
+              <option value="javascript">JavaScript</option>
+              <option value="java">Java</option>
+              <option value="python">Python</option>
+              <option value="cpp">C++</option>
+            </select>
+          </div>
         </div>
 
-        <Editor
-          height="70vh"
-          language={language}
-          value={code}
-          onChange={handleCodeChange}
-          onMount={handleEditorDidMount}
-          theme="vs-dark"
-        />
+        <div className="editor-container">
+          <Editor
+            height="70vh"
+            language={language}
+            value={code}
+            onChange={handleCodeChange}
+            onMount={handleEditorDidMount}
+            theme="vs-dark"
+          />
+        </div>
 
-        <div
-          style={{
-            background: "#1e1e1e",
-            color: "#ffffff",
-            padding: "10px",
-            height: "20vh",
-            overflowY: "auto",
-            borderTop: "1px solid #333",
-          }}
-        >
-          <h3>Output</h3>
+        <div className="output-panel">
+          <h3 className="output-header">Output</h3>
 
-          <pre
-            style={{
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {output}
-          </pre>
+          <pre className="output-content">{output}</pre>
         </div>
       </div>
 
       {/* Chat Section */}
-      <div
-        style={{
-          width: "320px",
-          background: "#252526",
-          color: "white",
-          display: "flex",
-          flexDirection: "column",
-          borderLeft: "1px solid #333",
-        }}
-      >
-        <h3
-          style={{
-            padding: "12px",
-            margin: 0,
-            borderBottom: "1px solid #333",
-          }}
-        >
-          Chat
-        </h3>
+      <div className="chat-section">
+        <h3 className="chat-header">💬 Chat</h3>
 
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "10px",
-          }}
-        >
+        <div className="chat-body">
           {messages.map((msg, index) => (
-            <div
-              key={msg._id || index}
-              style={{
-                marginBottom: "10px",
-                padding: "8px",
-                background: "#1e1e1e",
-                borderRadius: "6px",
-              }}
-            >
-              <strong>{msg.sender?.name || "Unknown"}</strong>
+            <div key={msg._id || index} className="chat-message">
+              <div className="chat-user">{msg.sender?.name || "Unknown"}</div>
 
-              <p
-                style={{
-                  margin: "5px 0",
-                }}
-              >
-                {msg.content}
-              </p>
+              <div className="chat-content">{msg.content}</div>
 
-              <small>
+              <small className="chat-time">
                 {msg.createdAt
                   ? new Date(msg.createdAt).toLocaleTimeString()
                   : ""}
@@ -337,15 +267,9 @@ function EditorPage() {
           <div ref={bottomRef}></div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "5px",
-            padding: "10px",
-            borderTop: "1px solid #333",
-          }}
-        >
+        <div className="chat-input-container">
           <input
+            className="chat-input"
             type="text"
             value={text}
             placeholder="Type a message..."
@@ -355,13 +279,11 @@ function EditorPage() {
                 sendMessage();
               }
             }}
-            style={{
-              flex: 1,
-              padding: "8px",
-            }}
           />
 
-          <button onClick={sendMessage}>Send</button>
+          <button className="send-btn" onClick={sendMessage}>
+            Send
+          </button>
         </div>
       </div>
     </div>

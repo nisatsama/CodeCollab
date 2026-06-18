@@ -13,6 +13,18 @@ function JoinPage() {
     setRoomId(id);
   };
 
+  const copyRoomId = async () => {
+    if (!roomId) return;
+
+    try {
+      await navigator.clipboard.writeText(roomId);
+      alert("Room ID copied!");
+    } catch (error) {
+      console.error("Failed to copy Room ID:", error);
+      alert("Failed to copy Room ID");
+    }
+  };
+
   const joinRoom = () => {
     if (!username.trim()) {
       alert("Please enter a username");
@@ -49,13 +61,24 @@ function JoinPage() {
           onKeyDown={(e) => e.key === "Enter" && joinRoom()}
         />
 
-        <input
-          type="text"
-          placeholder="Enter Room ID"
-          value={roomId}
-          onChange={(e) => setRoomId(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && joinRoom()}
-        />
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            alignItems: "center",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Enter Room ID"
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && joinRoom()}
+            style={{ flex: 1 }}
+          />
+
+          {roomId && <button onClick={copyRoomId}>📋 Copy</button>}
+        </div>
 
         <div className="button-group">
           <button onClick={createRoom}>Create Room</button>

@@ -1,1 +1,1 @@
-console.log("K");
+console.log(3+7);
