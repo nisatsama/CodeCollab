@@ -9,7 +9,13 @@ const app = express();
 const rooms = {};
 const roomMessages = {};
 const executeRoute = require("./routes/execute");
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use("/execute", executeRoute);
 
@@ -17,10 +23,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://code-collab-phi-one.vercel.app/",
-    ],
+    origin: ["http://localhost:5173", "https://code-collab-phi-one.vercel.app"],
     methods: ["GET", "POST"],
   },
 });
