@@ -3,6 +3,15 @@
 **CodeCollab** is a real-time collaborative coding platform that enables multiple developers to write, discuss, and execute code together in a shared workspace. Built with modern web technologies and WebSockets, it provides a seamless experience for collaborative problem-solving, interview preparation, pair programming, and team-based coding sessions.
 
 ---
+## 📸 Screenshots
+
+### Join Page
+
+<img src="codecollab/join.png" width="800">
+
+### Editor Page
+<img src="codecollab/editor.png" width="800">
+
 
 ## ✨ Features
 
