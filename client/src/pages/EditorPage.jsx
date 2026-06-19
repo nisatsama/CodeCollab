@@ -6,7 +6,8 @@ import "./EditorPage.css";
 
 import socket from "../socket";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const API_BASE =
+  "https://code-collab-sjgz.vercel.app/" || "http://localhost:5000";
 
 function EditorPage() {
   const codeRef = useRef("");
