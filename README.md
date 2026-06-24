@@ -3,6 +3,16 @@
 **CodeCollab** is a real-time collaborative coding platform that enables multiple developers to write, discuss, and execute code together in a shared workspace. Built with modern web technologies and WebSockets, it provides a seamless experience for collaborative problem-solving, interview preparation, pair programming, and team-based coding sessions.
 
 ---
+## Live Demo
+   Link: https://code-collab-phi-one.vercel.app/
+
+   ## Current Status
+- Frontend deployed on Vercel
+- Backend available in source code
+- Docker-based code execution currently configured for local/VPS deployment
+
+---
+
 ## 📸 Screenshots
 
 ### Join Page
