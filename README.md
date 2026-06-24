@@ -12,7 +12,7 @@
 ---
 ## 🔗 Repository
 
-GitHub: https://github.com/yourusername/codecollab
+GitHub: https://github.com/nisatsama/codecollab
 
 ---
 
