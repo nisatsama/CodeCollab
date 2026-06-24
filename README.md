@@ -3,13 +3,16 @@
 **CodeCollab** is a real-time collaborative coding platform that enables multiple developers to write, discuss, and execute code together in a shared workspace. Built with modern web technologies and WebSockets, it provides a seamless experience for collaborative problem-solving, interview preparation, pair programming, and team-based coding sessions.
 
 ---
-## Live Demo
-   Link: https://code-collab-phi-one.vercel.app/
+## 🌐 Live Demo
 
-   ## Current Status
-- Frontend deployed on Vercel
-- Backend available in source code
-- Docker-based code execution currently configured for local/VPS deployment
+🔗 https://code-collab-phi-one.vercel.app
+
+> Note: The frontend is deployed on Vercel. The backend and Docker-based code execution environment are available in the source code and can be run locally.
+
+---
+## 🔗 Repository
+
+GitHub: https://github.com/yourusername/codecollab
 
 ---
 
@@ -29,7 +32,7 @@
 
 * Multiple users can join the same coding room and edit code simultaneously.
 * Changes are synchronized instantly across all connected clients using **Socket.IO**.
-* Supports up to **20 concurrent participants per room**.
+* Supports multiple concurrent participants in a shared room.
 
 ### 🔹 Room-Based Collaboration
 
@@ -72,6 +75,15 @@ Supported Languages:
 
 * Compile and run code with a single click.
 * Display execution results directly inside the application.
+
+---
+## 📊 Project Statistics
+
+- Real-time collaborative editor
+- 4 programming languages supported
+- Docker-based sandboxed execution
+- WebSocket-powered synchronization
+- Room-based multi-user collaboration
 
 ---
 
@@ -199,12 +211,17 @@ Ensure Docker Desktop is running before executing code.
 
 * Real-time collaborative editing using WebSockets.
 * Stateful room synchronization for new participants.
-* Persistent chat visibility for late joiners.
+* Automatic state synchronization for newly joined participants, including chat history and current editor state.
 * Multi-language code execution pipeline.
 * Docker-based sandboxed execution environment.
-* Low-latency communication architecture.
+* Event-driven architecture using Socket.IO for real-time synchronization.
 * Support for multiple concurrent users within a room.
 
+### Code Editor Experience
+
+- Integrated Monaco Editor for a VS Code-like coding experience.
+- Syntax highlighting and language switching support.
+- Real-time collaborative editing synchronized across participants.
 ---
 
 ## 🔮 Future Enhancements
@@ -253,7 +270,12 @@ Ensure Docker Desktop is running before executing code.
 * Container orchestration with Docker and Kubernetes.
 
 
+## Keywords
 
+React.js, Node.js, Express.js, Socket.IO, WebSockets,
+Docker, Real-Time Collaboration, Monaco Editor,
+JavaScript, Java, Python, C++, REST APIs,
+System Design, Event-Driven Architecture
 ## 👨‍💻 Author
 
 **Nisat Sama**
