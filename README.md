@@ -291,4 +291,4 @@ Passionate about building scalable real-time applications, developer tools, and 
 CodeCollab demonstrates the integration of **real-time systems, distributed communication, containerized code execution, and collaborative software engineering principles** into a production-style application. It combines frontend development, backend architecture, WebSocket communication, and Docker orchestration to deliver a complete developer collaboration platform.
 
 ---
-Build with ❤️ by Nisat Sama.
+
